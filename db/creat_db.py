@@ -1,8 +1,7 @@
 import sqlite3 as sq
 
 
-
-base = sq.connect('clients.db')
+base = sq.connect('clients.db', check_same_thread=False)
 cur = base.cursor()
 
 

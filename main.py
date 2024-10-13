@@ -3,17 +3,19 @@ import os
 
 from aiogram import Bot, Dispatcher
 
+from birthday_today.run_background import run_continuously
 from handlers.add_user import add_user_router
 from handlers.replace_user import replace_user_router
 from handlers.user import user_router
 from db import creat_db
-from birthday_today.search_function import birthday_today_selection_from_db
+
 
 from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
 
 
 creat_db.sql_start()
+run_continuously()
 
 bot = Bot(token=os.getenv('TOKEN'))
 dp = Dispatcher()
@@ -27,8 +29,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-
-
 if __name__ == '__main__':
     asyncio.run(main())
-    creat_db.sql_start()
