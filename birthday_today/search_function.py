@@ -1,34 +1,72 @@
 from datetime import date
-
-import pytz
-import schedule
+from aiogram import Bot
 
 from db.creat_db import cur
 
+admin_list = [1903314478, ]
 
-def sending_message():
-    list_of_birthday_people = birthday_today_selection_from_db()
-    for item in list_of_birthday_people:
-        if item["tg_user_id"] == None:
-            print(f"отправить напоминание админу. Номер телефона:{item["phone_number"]}")
+first_list_of_birthday_peoples = []
+
+
+async def checks_every_5_minutes(bot: Bot):
+    print("Cработала функция checks_every_5_minutes")
+    new_list = birthday_today_selection_from_db()
+    for item in new_list:
+        if item in first_list_of_birthday_peoples:
+            pass
         else:
-            # await bot.send_message(item["tg_user_id"], "С днем рождения!!!")
-            print(f"отправить поздравление клиенту. id клиента:{item["tg_user_id"]}")
+            if item.get("tg_user_id") is None:
+                for admin_id in admin_list:
+                    await bot.send_message(admin_id, f"Сегодня день рождения у \n{item.get("name", "")} "
+                                                     f"{item.get("surname", "")} \nС номером телефона: "
+                                                     f"+7{item.get("phone_number", "")}\n Не забудьте поздравить!")
+            else:
+                await bot.send_message(item["tg_user_id"], f"Сднем рождения {item.get("name")} "
+                                                           f"{item.get("surname")}!!!")
+            first_list_of_birthday_peoples.append(item)
 
 
+async def sending_message(bot: Bot):
+    list_of_birthday_peoples = birthday_today_selection_from_db()
+    first_list_of_birthday_peoples.clear()
+    for i in list_of_birthday_peoples:
+        first_list_of_birthday_peoples.append(i)
+    for item in list_of_birthday_peoples:
+        if item.get("tg_user_id") is None:
+            for admin_id in admin_list:
+                await bot.send_message(admin_id, f"Сегодня день рождения у \n{item.get("name", "")} "
+                                                 f"{item.get("surname", "")} \nС номером телефона: "
+                                                 f"+7{item.get("phone_number", "")} \nНе забудьте поздравить!")
+        else:
+            await bot.send_message(item["tg_user_id"], f"С днем рождения {item.get("name")} "
+                                                       f"{item.get("surname")}!!!")
+
+
+# Функция получае список с датами рождений(res) вызвая функцию search_for_matches.
+# По дате рождения находит клиена в БД, забирает данные клиента(id телеграмм, номер телефона, имя, фамилия).
+# Формирует словарь с теми данными клиента которые есть в БД. Добавляет сформиравнные словари в список.
+# На выходе получаем список со словарями, в одном словаре данные одного клиента.
 def birthday_today_selection_from_db():
     res = search_for_matches()
-    list_phone_number = []
+    final_list_of_birthday_peoples = []
     for i in res:
         dict_res = {}
-        result = cur.execute("SELECT tg_user_id, phone_number FROM clients WHERE date_of_birth == ?", (i,)).fetchone()
-        dict_res["tg_user_id"] = result[0]
-        dict_res["phone_number"] = result[1]
-        list_phone_number.append(dict_res)
-        # print(list_phone_number)
-    return list_phone_number
+        result = cur.execute("SELECT tg_user_id, phone_number, name, surname FROM clients WHERE date_of_birth == ?",
+                             (i,)).fetchone()
+        if result[0] is not None:
+            dict_res["tg_user_id"] = result[0]
+        if result[1] is not None:
+            dict_res["phone_number"] = result[1]
+        if result[2] is not None:
+            dict_res["name"] = result[2]
+        if result[3] is not None:
+            dict_res["surname"] = result[3]
+        final_list_of_birthday_peoples.append(dict_res)
+    return final_list_of_birthday_peoples
 
 
+# Функция запрашивае из БД дату рождения всех клиентов,
+# сравнивает с датой сегодня и добавляет все совпвдения в список-res.
 def search_for_matches():
     dates_of_birth = cur.execute("SELECT date_of_birth FROM clients").fetchall()
     date_list = []
@@ -39,7 +77,3 @@ def search_for_matches():
         if i[0][5:] in date_list[0][5:]:
             res.append(i[0])
     return res
-
-
-schedule.every(20).seconds.do(sending_message)
-# schedule.every().days.at("09:30", pytz.timezone("Europe/Moscow")).do(birthday_today_selection_from_db)
