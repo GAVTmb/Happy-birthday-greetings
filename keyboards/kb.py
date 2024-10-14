@@ -45,3 +45,12 @@ replace_kb_user = ReplyKeyboardMarkup(
     resize_keyboard=True,
     input_field_placeholder=""
 )
+
+start_kb_admin = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Найти клиента"),
+            KeyboardButton(text="Все клиенты")
+        ]
+    ]
+)

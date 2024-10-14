@@ -8,6 +8,8 @@ admin_list = [1903314478, ]
 first_list_of_birthday_peoples = []
 
 
+# Функфия запускается каждые 5 минут. Проверяет наличие новых клиентов у которых сегодня ДР.
+# При появлении таких отправляет им сообщение с поздравлением.
 async def checks_every_5_minutes(bot: Bot):
     print("Cработала функция checks_every_5_minutes")
     new_list = birthday_today_selection_from_db()
@@ -26,6 +28,7 @@ async def checks_every_5_minutes(bot: Bot):
             first_list_of_birthday_peoples.append(item)
 
 
+# Функфия запускается раз в день в определенное время. Отправляет сообщения лиентам у которых ДР.
 async def sending_message(bot: Bot):
     list_of_birthday_peoples = birthday_today_selection_from_db()
     first_list_of_birthday_peoples.clear()
