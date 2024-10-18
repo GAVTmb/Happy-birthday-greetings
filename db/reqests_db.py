@@ -1,6 +1,5 @@
-from typing import List, Any
-
 from db.creat_db import cur, base
+from support_functions import data_in_dict, text_formation
 
 
 def first_add_data_client(tg_user_id, user_name):
@@ -9,20 +8,20 @@ def first_add_data_client(tg_user_id, user_name):
     base.commit()
 
 
-# Добавить слиента в базу
-# def add_client(phone_number, name, surname, date_of_birth):
-#     cur.execute("INSERT INTO clients (phone_number, name, surname, date_of_birth)"
-#                 "VALUES(?, ?, ?, ?)", (phone_number, name, surname, date_of_birth))
-#     base.commit()
-
-
-def add_data_client(phone_number, name, surname, date_of_birth, tg_user_id):
+def add_data_user(phone_number, name, surname, date_of_birth, tg_user_id):
     cur.execute("UPDATE clients SET phone_number == ?, "
                 "name == ?, "
                 "surname == ?, "
                 "date_of_birth == ? "
                 "WHERE tg_user_id == ?",
                 (phone_number, name, surname, date_of_birth, tg_user_id))
+    base.commit()
+
+
+def add_data_client(phone_number, name, surname, date_of_birth):
+    cur.execute("INSERT INTO clients (phone_number, name, surname, date_of_birth) "
+                "VALUES(?, ?, ?, ?)",
+                (phone_number, name, surname, date_of_birth))
     base.commit()
 
 
@@ -44,8 +43,16 @@ def find_client(phone_number):
 # Поиск клиента по tg_user_id
 def find_client_id(tg_user_id):
     result = cur.execute("SELECT user_name, phone_number, name, surname, date_of_birth FROM clients "
-                          "WHERE tg_user_id == ?", (tg_user_id,)).fetchmany(1)
+                         "WHERE tg_user_id == ?", (tg_user_id,)).fetchmany(1)
     return result
+
+
+# Выдать всех клиентов
+def find_all_clients():
+    list_data = cur.execute("SELECT * FROM clients").fetchall()
+    list_result = data_in_dict(list_data)
+    final_list = text_formation(list_result)
+    return final_list
 
 
 # Удаление клиента по номеру телефона

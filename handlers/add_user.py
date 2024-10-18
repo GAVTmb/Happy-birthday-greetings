@@ -3,7 +3,7 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-from db.reqests_db import add_data_client
+from db.reqests_db import add_data_user
 from keyboards import kb
 from support_functions import change_phone_number, checking_date_of_birth
 
@@ -116,7 +116,7 @@ async def add_phone_number_user(message: types.Message, state: FSMContext):
                              reply_markup=kb.start_kb_user)
         data = await state.get_data()
         user_id = message.from_user.id
-        add_data_client(data["phone_number"], data["name"], data["surname"], data["date_of_birth"], user_id)
+        add_data_user(data["phone_number"], data["name"], data["surname"], data["date_of_birth"], user_id)
         await message.answer(f"Проверь заебал!!! \n Телефон: +7{data["phone_number"]} \n Имя: {data["name"]} \n "
                              f"Фамилия: {data["surname"]} \n Дата рождения: {data["date_of_birth"]}")
         await state.clear()

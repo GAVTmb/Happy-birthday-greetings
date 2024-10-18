@@ -49,8 +49,24 @@ replace_kb_user = ReplyKeyboardMarkup(
 start_kb_admin = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Найти клиента"),
+            KeyboardButton(text="Добавить клиента"),
             KeyboardButton(text="Все клиенты")
+        ],
+        [
+            KeyboardButton(text="Выход")
         ]
-    ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder=""
+)
+
+cancel_kb_client = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Отменить"),
+            KeyboardButton(text="Назад")
+        ],
+    ],
+    resize_keyboard=True,
+    input_field_placeholder=""
 )
